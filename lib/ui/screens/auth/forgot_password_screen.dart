@@ -50,7 +50,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
-  Future<void> _confirm_() async {
+  Future<void> _submitReset() async {
     if (!_resetForm.currentState!.validate()) return;
     final auth = context.read<AuthController>();
     final nav = Navigator.of(context);
@@ -118,13 +118,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: _confirm,
                   label: 'تکرار رمز عبور جدید',
                   validator: Validators.confirmPassword(() => _password.text),
-                  onSubmitted: _confirm_,
+                  onSubmitted: _submitReset,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          BusyButton(label: 'ثبت رمز عبور جدید', busy: _busy, onPressed: _confirm_),
+          BusyButton(label: 'ثبت رمز عبور جدید', busy: _busy, onPressed: _submitReset),
           TextButton(
             onPressed: _busy ? null : _requestCode,
             child: const Text('ارسال مجدد کد'),
