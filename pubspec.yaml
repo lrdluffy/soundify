@@ -1,0 +1,42 @@
+name: soundify
+description: Soundify - online music streaming app (Flutter, Android).
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  cupertino_icons: ^1.0.8
+
+  # networking
+  dio: ^5.4.3
+
+  # state management
+  provider: ^6.1.2
+
+  # security / storage
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.2.3
+  local_auth: ^2.3.0
+  safe_device: ^1.1.6
+
+  # audio
+  just_audio: ^0.9.40
+  just_audio_background: ^0.0.1-beta.13
+
+  # ui
+  cached_network_image: ^3.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
