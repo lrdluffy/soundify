@@ -185,7 +185,8 @@ class _SeekBar extends StatelessWidget {
           stream: player.positionStream,
           builder: (context, posSnap) {
             final posMs = (dragMs ?? (posSnap.data?.inMilliseconds ?? 0).toDouble())
-                .clamp(0.0, totalMs > 0 ? totalMs : 1.0);
+                .clamp(0.0, totalMs > 0 ? totalMs : 1.0)
+                .toDouble();
             return Column(
               children: [
                 // Time labels stay left-to-right regardless of RTL layout.

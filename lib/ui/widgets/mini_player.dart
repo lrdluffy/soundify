@@ -44,7 +44,7 @@ class MiniPlayer extends StatelessWidget {
                 final pos = snap.data?.inMilliseconds ?? 0;
                 return LinearProgressIndicator(
                   minHeight: 2,
-                  value: total > 0 ? (pos / total).clamp(0.0, 1.0) : null,
+                  value: total > 0 ? (pos / total).clamp(0.0, 1.0).toDouble() : null,
                 );
               },
             ),

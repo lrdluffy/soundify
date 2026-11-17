@@ -54,7 +54,9 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
     final auth = context.read<AuthController>();
     final ok = await runGuarded(
       context,
-      (b) => mounted ? setState(() => _busy = b) : null,
+      (b) {
+        if (mounted) setState(() => _busy = b);
+      },
       () => auth.requestOtp(_email.text),
       errorText,
     );
@@ -71,7 +73,9 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
     final nav = Navigator.of(context);
     final ok = await runGuarded(
       context,
-      (b) => mounted ? setState(() => _busy = b) : null,
+      (b) {
+        if (mounted) setState(() => _busy = b);
+      },
       () => auth.verifyOtp(_email.text, _code.text),
       errorText,
     );

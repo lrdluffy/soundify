@@ -1,0 +1,14 @@
+Soundify - submission links
+Student git: lrdluffy
+
+1. Source code (Git repository):
+   <PASTE GitHub/GitLab repo URL>
+
+2. Release APK (app-release.apk, arm64-v8a):
+   <PASTE download link>
+
+3. README.md:
+   <repo URL>/blob/main/README.md
+
+4. Demo video (2-3 min: login, biometric, music playback, background + notification):
+   <PASTE video link>

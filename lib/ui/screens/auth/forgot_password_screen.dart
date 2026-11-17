@@ -40,7 +40,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final auth = context.read<AuthController>();
     final ok = await runGuarded(
       context,
-      (b) => mounted ? setState(() => _busy = b) : null,
+      (b) {
+        if (mounted) setState(() => _busy = b);
+      },
       () => auth.requestPasswordReset(_email.text),
       errorText,
     );
@@ -57,7 +59,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final ok = await runGuarded(
       context,
-      (b) => mounted ? setState(() => _busy = b) : null,
+      (b) {
+        if (mounted) setState(() => _busy = b);
+      },
       () => auth.confirmPasswordReset(_email.text, _code.text, _password.text),
       errorText,
     );

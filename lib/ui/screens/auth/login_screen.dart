@@ -34,7 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.read<AuthController>();
     await runGuarded(
       context,
-      (b) => mounted ? setState(() => _busy = b) : null,
+      (b) {
+        if (mounted) setState(() => _busy = b);
+      },
       () => auth.login(_email.text, _password.text),
       errorText,
     );

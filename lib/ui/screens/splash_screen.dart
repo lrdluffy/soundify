@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
           duration: const Duration(milliseconds: 900),
           curve: Curves.easeOutBack,
           builder: (_, v, child) =>
-              Opacity(opacity: v.clamp(0.0, 1.0), child: Transform.scale(scale: v, child: child)),
+              Opacity(opacity: v.clamp(0.0, 1.0).toDouble(), child: Transform.scale(scale: v, child: child)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
