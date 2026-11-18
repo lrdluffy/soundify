@@ -1,5 +1,6 @@
-/// Every server-dependent name lives here (paths + JSON keys), so if the live
-/// API docs differ from what we assumed, only this file needs to change.
+/// Paths and JSON keys, taken from the official Soundify OpenAPI 3.0 spec
+/// (v1.1.0). Base URL (with /api/v1) is in AppConfig. Paths have NO trailing
+/// slash. If the backend changes, this is the only file to touch.
 class Endpoints {
   Endpoints._();
 
@@ -10,6 +11,7 @@ class Endpoints {
   static const resetRequest = '/auth/password/reset/request';
   static const resetConfirm = '/auth/password/reset/confirm';
   static const refresh = '/auth/token/refresh';
+  static const logout = '/auth/logout';
   static const me = '/users/me';
 
   static const tracks = '/tracks';
@@ -31,36 +33,30 @@ class Keys {
   Keys._();
 
   static const email = 'email';
+  static const username = 'username';
+  static const displayName = 'display_name';
   static const password = 'password';
-  static const name = 'name';
   static const code = 'code';
   static const newPassword = 'new_password';
-  static const refreshToken = 'refresh_token';
+  static const refreshToken = 'refresh';
   static const trackId = 'track_id';
   static const playlistName = 'name';
   static const playlistDescription = 'description';
 }
 
-/// Candidate response keys; the first one that is present is used.
+/// Response keys; the first one present wins (first entry = what the spec says,
+/// the others are harmless fallbacks).
 class ResponseKeys {
   ResponseKeys._();
 
-  static const accessToken = ['access_token', 'accessToken', 'token'];
-  static const refreshToken = ['refresh_token', 'refreshToken'];
+  static const accessToken = ['access', 'access_token', 'accessToken', 'token'];
+  static const refreshToken = ['refresh', 'refresh_token', 'refreshToken'];
   static const id = ['id', '_id', 'track_id', 'playlist_id'];
   static const title = ['title', 'name', 'track_name'];
   static const artist = ['artist', 'artist_name', 'singer'];
   static const album = ['album', 'album_name'];
-  static const cover = [
-    'cover_url',
-    'coverUrl',
-    'cover',
-    'cover_image',
-    'image',
-    'artwork',
-    'thumbnail',
-  ];
+  static const cover = ['cover_url', 'coverUrl', 'cover', 'image', 'thumbnail'];
   static const genre = ['genre', 'category'];
   static const streamUrl = ['stream_url', 'streamUrl', 'audio_url', 'url'];
-  static const userName = ['name', 'full_name', 'username', 'display_name'];
+  static const userName = ['display_name', 'name', 'full_name', 'username'];
 }

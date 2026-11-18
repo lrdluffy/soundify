@@ -11,20 +11,21 @@ class AuthRepository {
   final ApiClient _api;
   final TokenStorage _tokens;
 
-  Future<void> register(
-      {required String email, required String password, String? name}) async {
-    final body = await _api.post(
-      Endpoints.register,
-      auth: false,
-      data: {
+  /// Creates an UNVERIFIED account; the server emails a 6-digit OTP.
+  /// No tokens are returned - the user must verify, then log in.
+  Future<void> register({
+    required String email,
+    required String username,
+    required String password,
+    String? displayName,
+  }) =>
+      _api.post(Endpoints.register, auth: false, data: {
         Keys.email: email.trim(),
+        Keys.username: username.trim(),
         Keys.password: password,
-        if (name != null && name.trim().isNotEmpty) Keys.name: name.trim(),
-      },
-    );
-    // Some servers return tokens on registration; keep them if so.
-    await _saveIfTokens(body, required: false);
-  }
+        if (displayName != null && displayName.trim().isNotEmpty)
+          Keys.displayName: displayName.trim(),
+      });
 
   Future<void> login(String email, String password) async {
     final body = await _api.post(
@@ -32,20 +33,22 @@ class AuthRepository {
       auth: false,
       data: {Keys.email: email.trim(), Keys.password: password},
     );
-    await _saveIfTokens(body);
+    final pair = TokenPair.tryParse(body);
+    if (pair == null) {
+      throw const ApiException(ApiErrorType.unknown, 'پاسخ سرور شامل توکن نبود');
+    }
+    await _tokens.save(access: pair.access, refresh: pair.refresh);
   }
 
+  /// (Re)sends the email-verification OTP. Rate limit: once per 60 s.
   Future<void> requestOtp(String email) => _api.post(Endpoints.otpRequest,
       auth: false, data: {Keys.email: email.trim()});
 
-  Future<void> verifyOtp(String email, String code) async {
-    final body = await _api.post(
+  /// Marks the account verified. Does NOT return tokens.
+  Future<void> verifyOtp(String email, String code) => _api.post(
       Endpoints.otpVerify,
       auth: false,
-      data: {Keys.email: email.trim(), Keys.code: code.trim()},
-    );
-    await _saveIfTokens(body);
-  }
+      data: {Keys.email: email.trim(), Keys.code: code.trim()});
 
   Future<void> requestPasswordReset(String email) => _api.post(
       Endpoints.resetRequest,
@@ -66,17 +69,16 @@ class AuthRepository {
 
   Future<bool> hasSession() => _tokens.hasSession;
 
-  Future<void> logout() => _tokens.clear();
-
-  Future<void> _saveIfTokens(dynamic body, {bool required = true}) async {
-    final pair = TokenPair.tryParse(body);
-    if (pair == null) {
-      if (required) {
-        throw const ApiException(
-            ApiErrorType.unknown, 'پاسخ سرور شامل توکن نبود');
-      }
-      return;
+  /// Revokes the tokens on the server (best effort), then always clears them locally.
+  Future<void> logout() async {
+    try {
+      final refresh = await _tokens.refreshToken;
+      await _api.post(Endpoints.logout,
+          data: {if (refresh != null) Keys.refreshToken: refresh});
+    } catch (_) {
+      // Offline / expired: local sign-out must still succeed.
+    } finally {
+      await _tokens.clear();
     }
-    await _tokens.save(access: pair.access, refresh: pair.refresh);
   }
 }

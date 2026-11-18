@@ -67,20 +67,21 @@ class AuthController extends ChangeNotifier {
     await _enter();
   }
 
-  Future<void> register(String email, String password, String? name) async {
-    await _repo.register(email: email, password: password, name: name);
-    if (!await _repo.hasSession()) {
-      await _repo.login(email, password);
-    }
-    await _enter();
-  }
+  /// Creates the (unverified) account. The server emails an OTP; the caller
+  /// then shows the verification screen. No session is created here.
+  Future<void> register(
+          String email, String username, String password, String? displayName) =>
+      _repo.register(
+          email: email,
+          username: username,
+          password: password,
+          displayName: displayName);
 
   Future<void> requestOtp(String email) => _repo.requestOtp(email);
 
-  Future<void> verifyOtp(String email, String code) async {
-    await _repo.verifyOtp(email, code);
-    await _enter();
-  }
+  /// Verifies the account (no tokens are issued; log in afterwards).
+  Future<void> verifyOtp(String email, String code) =>
+      _repo.verifyOtp(email, code);
 
   Future<void> requestPasswordReset(String email) =>
       _repo.requestPasswordReset(email);

@@ -47,6 +47,7 @@ void main() {
   });
 
   test('TokenPair parses flat and wrapped responses', () {
+    expect(TokenPair.tryParse({'access': 'a', 'refresh': 'r'})?.refresh, 'r');
     expect(TokenPair.tryParse({'access_token': 'a', 'refresh_token': 'r'})?.refresh, 'r');
     expect(TokenPair.tryParse({'data': {'accessToken': 'a'}})?.access, 'a');
     expect(TokenPair.tryParse({'nothing': true}), isNull);

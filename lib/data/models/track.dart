@@ -25,7 +25,7 @@ class Track {
 
   /// URL given by the server when present, otherwise the documented
   /// `/tracks/:id/stream` endpoint (supports HTTP 206 range requests).
-  String get playUrl => streamUrl ?? '${AppConfig.baseUrl}/tracks/$id/stream';
+  String get playUrl => streamUrl ?? '${AppConfig.baseUrl}${Endpoints.stream(id)}';
 
   factory Track.fromJson(Map<String, dynamic> j) {
     return Track(

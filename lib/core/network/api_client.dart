@@ -84,7 +84,6 @@ class ApiClient {
       final res = await _bare.post<dynamic>(
         Endpoints.refresh,
         data: {Keys.refreshToken: refresh},
-        options: Options(headers: {'Authorization': 'Bearer $refresh'}),
       );
       final pair = TokenPair.tryParse(res.data);
       if (pair == null) {

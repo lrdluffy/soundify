@@ -51,7 +51,7 @@ flutter test   # validators + model/token parsing
 | Requirement | Implementation |
 |---|---|
 | Register / login with validation | `ui/screens/auth/*`, `core/util/validators.dart` |
-| OTP login with resend countdown | `otp_login_screen.dart` (60 s timer) |
+| Email OTP verification with resend countdown | `verify_account_screen.dart` (60 s timer). Register -> OTP -> automatic login; login of an unverified account (`account_not_verified`) jumps to the same screen |
 | Forgot password (2 steps) | `forgot_password_screen.dart` |
 | Secure token storage | `core/storage/token_storage.dart` - `flutter_secure_storage` (EncryptedSharedPreferences). `SharedPreferences` only holds non-sensitive flags (`app_prefs.dart`). |
 | Auto refresh via interceptor | `core/network/interceptors.dart` `AuthInterceptor`; single-flight refresh in `api_client.dart`; user is logged out **only** if the refresh token is rejected (a network blip keeps the session) |
@@ -89,9 +89,10 @@ UI -> controller (state) -> repository -> `ApiClient` (Dio). Screens never see `
 
 ## Things to know (honest notes)
 
-- **API field names are assumptions.** The task sheet lists endpoints but not JSON bodies. All paths and keys (e.g. `access_token`, `refresh_token`, `code`, `new_password`, `track_id`) live in **one file**: `lib/core/network/api_contract.dart`. Parsing of responses is tolerant (several candidate key names, wrapped `data`/`items` lists, seconds vs milliseconds). If something returns 422 against the live server, check `https://soundify.easyfound.ir/docs` and adjust that file only.
-- **Playlist editing:** the endpoint table has no update route, but the brief asks for editing. The app tries `PATCH` then `PUT` on `/playlists/:id`; if the server has neither, the user sees the server error.
-- **Playlist contents:** the app uses tracks embedded in `GET /playlists`; if absent it tries `GET /playlists/:id` and treats 404/405 as "no detail endpoint".
+- **API contract:** paths and JSON keys follow the official OpenAPI spec (Soundify API v1.1.0): no trailing slashes, tokens are `access` / `refresh`, errors are `{"error":{"code","message"}}` (mapped to Persian messages by `error.code`). Everything server-dependent is in `lib/core/network/api_contract.dart`.
+- **Auth flow:** `register` creates an *unverified* account and emails a 6-digit OTP; `/auth/otp/verify` only verifies (no tokens), so the app logs in right after verification. Logging in to an unverified account returns `403 account_not_verified` and opens the same verification screen.
+- **Pagination:** the API caps `page_size` at 50. Home shows the first 50 tracks (artist chips filter on the server with `?artist=`); favorites and playlists follow all pages.
+- **Featured:** uses `GET /tracks/featured`.
 - **Equalizer** in the full-screen player is an animated visual driven by the play state (just_audio exposes no live spectrum on Android without native code).
 - The mini player is pinned at the very bottom of every screen (below the navigation bar) and hides while the full player is open.
 - Biometric lock applies on app start; logging out turns the biometric setting off.

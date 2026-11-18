@@ -8,18 +8,40 @@ enum ApiErrorType {
   notFound,
   validation,
   conflict,
+  rateLimited,
   server,
   cancelled,
   unknown,
 }
 
+/// Persian messages for the server's machine-readable `error.code` values.
+const Map<String, String> _messagesFa = {
+  'invalid_credentials': 'ایمیل یا رمز عبور اشتباه است',
+  'account_not_verified': 'حساب شما هنوز تأیید نشده است',
+  'account_disabled': 'این حساب غیرفعال شده است',
+  'email_already_exists': 'این ایمیل قبلاً ثبت شده است',
+  'username_already_exists': 'این نام کاربری قبلاً گرفته شده است',
+  'invalid_email': 'ایمیل معتبر نیست',
+  'weak_password': 'رمز عبور ضعیف است (حداقل ۸ کاراکتر)',
+  'invalid_otp': 'کد تأیید اشتباه است',
+  'otp_expired': 'کد تأیید منقضی شده؛ کد جدید دریافت کنید',
+  'otp_attempts_exceeded': 'تعداد تلاش‌ها زیاد بود؛ کد جدید دریافت کنید',
+  'user_not_found': 'حسابی با این ایمیل پیدا نشد',
+  'already_favorited': 'این آهنگ قبلاً لایک شده است',
+  'already_in_playlist': 'این آهنگ قبلاً در پلی‌لیست است',
+  'track_not_found': 'آهنگ پیدا نشد',
+};
+
 /// Domain-level error shown to the user. UI never sees [DioException].
 class ApiException implements Exception {
-  const ApiException(this.type, this.message, {this.statusCode});
+  const ApiException(this.type, this.message, {this.statusCode, this.code});
 
   final ApiErrorType type;
   final String message;
   final int? statusCode;
+
+  /// Server `error.code`, e.g. `account_not_verified`.
+  final String? code;
 
   bool get isConnectivity =>
       type == ApiErrorType.noInternet || type == ApiErrorType.timeout;
@@ -47,54 +69,53 @@ class ApiException implements Exception {
   }
 
   static ApiException _fromStatus(Response<dynamic>? r) {
-    final code = r?.statusCode ?? 0;
-    final detail = _serverMessage(r?.data);
-    switch (code) {
+    final status = r?.statusCode ?? 0;
+    final err = _parseError(r?.data);
+    final detail = _messagesFa[err.code] ?? err.message;
+
+    ApiException make(ApiErrorType t, String fallback) => ApiException(
+        t, detail ?? fallback,
+        statusCode: status, code: err.code);
+
+    switch (status) {
       case 400:
       case 422:
-        return ApiException(
-            ApiErrorType.validation, detail ?? 'اطلاعات واردشده معتبر نیست',
-            statusCode: code);
+        return make(ApiErrorType.validation, 'اطلاعات واردشده معتبر نیست');
       case 401:
-        return ApiException(
-            ApiErrorType.unauthorized, detail ?? 'احراز هویت ناموفق بود',
-            statusCode: code);
+        return make(ApiErrorType.unauthorized, 'احراز هویت ناموفق بود');
       case 403:
-        return ApiException(
-            ApiErrorType.forbidden, detail ?? 'دسترسی مجاز نیست',
-            statusCode: code);
+        return make(ApiErrorType.forbidden, 'دسترسی مجاز نیست');
       case 404:
-        return ApiException(ApiErrorType.notFound, detail ?? 'مورد یافت نشد',
-            statusCode: code);
+        return make(ApiErrorType.notFound, 'مورد یافت نشد');
       case 409:
-        return ApiException(ApiErrorType.conflict, detail ?? 'مورد تکراری است',
-            statusCode: code);
+        return make(ApiErrorType.conflict, 'مورد تکراری است');
+      case 429:
+        return make(ApiErrorType.rateLimited,
+            'درخواست‌های زیاد؛ حدود یک دقیقه صبر کنید');
       default:
-        if (code >= 500) {
+        if (status >= 500) {
           return ApiException(ApiErrorType.server, 'خطای سرور، دوباره تلاش کنید',
-              statusCode: code);
+              statusCode: status);
         }
-        return ApiException(ApiErrorType.unknown, detail ?? 'خطایی رخ داد',
-            statusCode: code);
+        return make(ApiErrorType.unknown, 'خطایی رخ داد');
     }
   }
 
-  /// FastAPI style: {"detail": "msg"} or {"detail": [{"msg": "..."}]}.
-  static String? _serverMessage(dynamic data) {
+  /// Spec format: {"error": {"code": "...", "message": "...", "details": {}}}
+  static ({String? code, String? message}) _parseError(dynamic data) {
     if (data is Map) {
-      final d = data['detail'] ?? data['message'] ?? data['error'];
-      if (d is String && d.isNotEmpty) return d;
-      if (d is List && d.isNotEmpty) {
-        final first = d.first;
-        if (first is Map && first['msg'] != null) return first['msg'].toString();
-        return first.toString();
+      final e = data['error'];
+      if (e is Map) {
+        return (code: e['code']?.toString(), message: e['message']?.toString());
       }
+      final d = data['detail'] ?? data['message'];
+      if (d is String) return (code: null, message: d);
     }
-    return null;
+    return (code: null, message: null);
   }
 
   @override
-  String toString() => 'ApiException($type, $statusCode, $message)';
+  String toString() => 'ApiException($type, $statusCode, $code, $message)';
 }
 
 String errorText(Object e) =>

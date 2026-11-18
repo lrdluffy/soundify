@@ -5,6 +5,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/util/validators.dart';
 import '../../../state/auth_controller.dart';
 import '../../widgets/auth_widgets.dart';
+import 'verify_account_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,6 +17,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
+  final _username = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
@@ -24,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _name.dispose();
+    _username.dispose();
     _email.dispose();
     _password.dispose();
     _confirm.dispose();
@@ -34,15 +37,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_form.currentState!.validate()) return;
     final auth = context.read<AuthController>();
     final nav = Navigator.of(context);
+    final email = _email.text.trim();
+    final password = _password.text;
     final ok = await runGuarded(
       context,
       (b) {
         if (mounted) setState(() => _busy = b);
       },
-      () => auth.register(_email.text, _password.text, _name.text),
+      () => auth.register(_email.text, _username.text, _password.text, _name.text),
       errorText,
     );
-    if (ok) nav.popUntil((r) => r.isFirst);
+    // Account is created but unverified: the server emailed an OTP.
+    if (ok) {
+      nav.pushReplacement(MaterialPageRoute<void>(
+          builder: (_) => VerifyAccountScreen(email: email, password: password)));
+    }
   }
 
   @override
@@ -56,10 +65,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             children: [
               TextFormField(
+                controller: _username,
+                textDirection: TextDirection.ltr,
+                textInputAction: TextInputAction.next,
+                validator: Validators.username,
+                decoration: const InputDecoration(
+                  labelText: 'نام کاربری',
+                  prefixIcon: Icon(Icons.alternate_email),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
                 controller: _name,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
-                  labelText: 'نام (اختیاری)',
+                  labelText: 'نام نمایشی (اختیاری)',
                   prefixIcon: Icon(Icons.person_outline),
                 ),
               ),

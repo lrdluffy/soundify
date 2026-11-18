@@ -10,6 +10,16 @@ class Validators {
     return null;
   }
 
+  static String? username(String? v) {
+    final t = (v ?? '').trim();
+    if (t.isEmpty) return 'نام کاربری را وارد کنید';
+    if (t.length < 3) return 'نام کاربری باید حداقل ۳ کاراکتر باشد';
+    if (!RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(t)) {
+      return 'فقط حروف انگلیسی، عدد، نقطه و _ مجاز است';
+    }
+    return null;
+  }
+
   static String? password(String? v) {
     final t = v ?? '';
     if (t.isEmpty) return 'رمز عبور را وارد کنید';
