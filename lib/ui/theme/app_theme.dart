@@ -13,6 +13,7 @@ class AppTheme {
     final isDark = b == Brightness.dark;
     return ThemeData(
       useMaterial3: true,
+       fontFamily: 'Vazirmatn',
       colorScheme: scheme,
       scaffoldBackgroundColor: isDark ? const Color(0xFF0E0F12) : null,
       appBarTheme: AppBarTheme(

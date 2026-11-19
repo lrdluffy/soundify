@@ -53,6 +53,9 @@ class ApiException implements Exception {
       case DioExceptionType.receiveTimeout:
         return const ApiException(
             ApiErrorType.timeout, 'زمان اتصال به سرور به پایان رسید');
+      case DioExceptionType.transformTimeout:
+        return const ApiException(ApiErrorType.timeout,
+            'مدت زمان مجاز برای پردازش درخواست به پایان رسید');
       case DioExceptionType.connectionError:
         return const ApiException(
             ApiErrorType.noInternet, 'اتصال به اینترنت برقرار نیست');
@@ -73,9 +76,8 @@ class ApiException implements Exception {
     final err = _parseError(r?.data);
     final detail = _messagesFa[err.code] ?? err.message;
 
-    ApiException make(ApiErrorType t, String fallback) => ApiException(
-        t, detail ?? fallback,
-        statusCode: status, code: err.code);
+    ApiException make(ApiErrorType t, String fallback) =>
+        ApiException(t, detail ?? fallback, statusCode: status, code: err.code);
 
     switch (status) {
       case 400:
@@ -94,7 +96,8 @@ class ApiException implements Exception {
             'درخواست‌های زیاد؛ حدود یک دقیقه صبر کنید');
       default:
         if (status >= 500) {
-          return ApiException(ApiErrorType.server, 'خطای سرور، دوباره تلاش کنید',
+          return ApiException(
+              ApiErrorType.server, 'خطای سرور، دوباره تلاش کنید',
               statusCode: status);
         }
         return make(ApiErrorType.unknown, 'خطایی رخ داد');
