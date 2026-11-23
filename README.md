@@ -1,6 +1,5 @@
 # Soundify
 
-اپلیکیشن استریم موسیقی Soundify با Flutter (هدف: Android) که به API درس متصل می‌شود.
 A Flutter/Android online music streaming app: secure auth, Dio networking with token refresh, and background audio with a media notification.
 
 - API base URL: `https://soundify.easyfound.ir/api/v1`

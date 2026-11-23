@@ -41,14 +41,6 @@ class PlayerController extends ChangeNotifier {
   bool buffering = false;
   String? error;
 
-  bool _fullScreenOpen = false;
-  bool get fullScreenOpen => _fullScreenOpen;
-  set fullScreenOpen(bool v) {
-    if (_fullScreenOpen == v) return;
-    _fullScreenOpen = v;
-    notifyListeners();
-  }
-
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
   Stream<Duration> get bufferedPositionStream => _player.bufferedPositionStream;

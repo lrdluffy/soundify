@@ -8,9 +8,11 @@ import 'cover_image.dart';
 /// Pinned above the bottom of every screen while a track is loaded.
 /// Built in MaterialApp.builder, so it needs the root navigator key.
 class MiniPlayer extends StatelessWidget {
-  const MiniPlayer({super.key, required this.navigatorKey});
+  const MiniPlayer({super.key, this.safeBottom = false});
 
-  final GlobalKey<NavigatorState> navigatorKey;
+  /// Set to true on screens that have no NavigationBar underneath, so the
+  /// player keeps clear of the gesture bar.
+  final bool safeBottom;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class MiniPlayer extends StatelessWidget {
       color: scheme.surfaceContainerHigh,
       elevation: 6,
       child: InkWell(
-        onTap: () => navigatorKey.currentState?.push(
+        onTap: () => Navigator.of(context).push(
           PageRouteBuilder<void>(
             fullscreenDialog: true,
             transitionsBuilder: (_, a, __, child) => SlideTransition(
@@ -74,29 +76,37 @@ class MiniPlayer extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_previous_rounded),
-                    onPressed: player.previous,
-                  ),
-                  player.buffering
-                      ? const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2.5)),
-                        )
-                      : IconButton(
-                          iconSize: 34,
-                          icon: Icon(player.playing
-                              ? Icons.pause_circle_filled_rounded
-                              : Icons.play_circle_fill_rounded),
-                          onPressed: player.togglePlay,
-                        ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_next_rounded),
-                    onPressed: player.next,
-                  ),
+                  Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.skip_previous_rounded),
+                            onPressed: player.previous,
+                          ),
+                          player.buffering
+                              ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2.5)),
+                          )
+                              : IconButton(
+                            iconSize: 34,
+                            icon: Icon(player.playing
+                                ? Icons.pause_circle_filled_rounded
+                                : Icons.play_circle_fill_rounded),
+                            onPressed: player.togglePlay,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.skip_next_rounded),
+                            onPressed: player.next,
+                          ),
+                        ],
+                      )
+                  )
                 ],
               ),
             ),

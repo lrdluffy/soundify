@@ -21,7 +21,6 @@ import 'ui/screens/main_shell.dart';
 import 'ui/screens/onboarding_screen.dart';
 import 'ui/screens/splash_screen.dart';
 import 'ui/theme/app_theme.dart';
-import 'ui/widgets/mini_player.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -87,36 +86,6 @@ class _AppView extends StatelessWidget {
       locale: const Locale('fa', 'IR'),
       supportedLocales: const [Locale('fa', 'IR'), Locale('en')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      builder: (context, child) {
-        final auth = context.watch<AuthController>();
-        final player = context.watch<PlayerController>();
-        final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-        final showMini = auth.status == AuthStatus.authenticated &&
-            player.hasTrack &&
-            !player.fullScreenOpen &&
-            !keyboardOpen;
-        // Keep the same widget types in both states so the Navigator is never
-        // re-mounted when the mini player appears/disappears.
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Column(
-            children: [
-              Expanded(
-                child: MediaQuery.removePadding(
-                  context: context,
-                  removeBottom: showMini,
-                  child: child!,
-                ),
-              ),
-              if (showMini)
-                SafeArea(
-                  top: false,
-                  child: MiniPlayer(navigatorKey: rootNavigatorKey),
-                ),
-            ],
-          ),
-        );
-      },
       home: const _AuthGate(),
     );
   }

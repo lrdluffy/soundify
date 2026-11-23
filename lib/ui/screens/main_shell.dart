@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:soundify/ui/widgets/mini_player.dart';
 
 import '../../state/auth_controller.dart';
 import 'home/home_screen.dart';
@@ -51,24 +52,30 @@ class _MainShellState extends State<MainShell> {
           Expanded(child: IndexedStack(index: _index, children: _pages)),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'خانه'),
-          NavigationDestination(
-              icon: Icon(Icons.search), label: 'جستجو'),
-          NavigationDestination(
-              icon: Icon(Icons.library_music_outlined),
-              selectedIcon: Icon(Icons.library_music),
-              label: 'کتابخانه'),
-          NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'پروفایل'),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const MiniPlayer(),
+          NavigationBar(
+            selectedIndex: _index,
+            onDestinationSelected: (i) => setState(() => _index = i),
+            destinations: const [
+              NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: 'خانه'),
+              NavigationDestination(
+                  icon: Icon(Icons.search), label: 'جستجو'),
+              NavigationDestination(
+                  icon: Icon(Icons.library_music_outlined),
+                  selectedIcon: Icon(Icons.library_music),
+                  label: 'کتابخانه'),
+              NavigationDestination(
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  label: 'پروفایل'),
+            ],
+          ),
         ],
       ),
     );

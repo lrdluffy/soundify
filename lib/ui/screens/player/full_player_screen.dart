@@ -16,22 +16,7 @@ class FullPlayerScreen extends StatefulWidget {
 }
 
 class _FullPlayerScreenState extends State<FullPlayerScreen> {
-  late final PlayerController _player;
   double? _dragMs; // while the user drags the seek slider
-
-  @override
-  void initState() {
-    super.initState();
-    _player = context.read<PlayerController>();
-    // Hide the global mini player while this screen is open.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _player.fullScreenOpen = true);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _player.fullScreenOpen = false);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,38 +97,41 @@ class _FullPlayerScreenState extends State<FullPlayerScreen> {
                 },
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    iconSize: 44,
-                    icon: const Icon(Icons.skip_previous_rounded),
-                    onPressed: player.previous,
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 76,
-                    height: 76,
-                    child: player.buffering
-                        ? const Padding(
-                            padding: EdgeInsets.all(22),
-                            child: CircularProgressIndicator(strokeWidth: 3),
-                          )
-                        : IconButton.filled(
-                            iconSize: 44,
-                            icon: Icon(player.playing
-                                ? Icons.pause_rounded
-                                : Icons.play_arrow_rounded),
-                            onPressed: player.togglePlay,
-                          ),
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    iconSize: 44,
-                    icon: const Icon(Icons.skip_next_rounded),
-                    onPressed: player.next,
-                  ),
-                ],
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      iconSize: 44,
+                      icon: const Icon(Icons.skip_previous_rounded),
+                      onPressed: player.previous,
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 76,
+                      height: 76,
+                      child: player.buffering
+                          ? const Padding(
+                        padding: EdgeInsets.all(22),
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      )
+                          : IconButton.filled(
+                        iconSize: 44,
+                        icon: Icon(player.playing
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded),
+                        onPressed: player.togglePlay,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    IconButton(
+                      iconSize: 44,
+                      icon: const Icon(Icons.skip_next_rounded),
+                      onPressed: player.next,
+                    ),
+                  ],
+                ),
               ),
               if (player.error != null)
                 Padding(

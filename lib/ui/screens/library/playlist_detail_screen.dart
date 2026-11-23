@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:soundify/ui/widgets/mini_player.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../data/models/playlist.dart';
@@ -107,6 +108,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: const MiniPlayer(safeBottom: true,),
     );
   }
 }
